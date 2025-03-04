@@ -25,15 +25,6 @@ func main() {
 
 	q := query.Use(database.Database.DB)
 
-	position := &models.Position{
-		Name: "position_test",
-	}
-
-	// Seed the database
-	if err := q.Position.WithContext(ctx).Create(position); err != nil {
-		log.Println(err)
-	}
-
 	roles := []*models.Role{
 		{Name: "admin"},
 		{Name: "user"},
@@ -45,11 +36,10 @@ func main() {
 	}
 
 	organization := &models.Organization{
-		Name:             "test_company",
-		Email:            "test@gmail.com",
-		Phone:            "12345678",
-		Register:         "12345678",
-		DetailedLocation: "test",
+		Name:     "test_company",
+		Email:    "test@gmail.com",
+		Phone:    "12345678",
+		Register: "12345678",
 	}
 
 	// Seed the database
@@ -58,13 +48,13 @@ func main() {
 	}
 
 	user := &models.User{
-		FirstName:      "first_name_test",
-		LastName:       "last_name_test",
-		Email:          "s123@gmail.com",
-		Password:       "Admin@123",
-		Phone:          "12345678",
-		RoleID:         1,
-		PositionID:     1,
+		FirstName: "first_name_test",
+		LastName:  "last_name_test",
+		Email:     "s123@gmail.com",
+		Password:  "Admin@123",
+		Phone:     "12345678",
+		RoleID:    1,
+		// PositionID:     1,
 		OrganizationID: 1,
 	}
 

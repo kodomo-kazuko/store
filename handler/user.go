@@ -23,11 +23,8 @@ func LoginUserHandler(c *fiber.Ctx) error {
 
 	query := query.User
 	user, err := query.WithContext(c.Context()).
-		Where(
-			query.Email.Eq(body.Identifier),
-			query.Deleted.Is(false)).
-		Or(query.Phone.Eq(body.Identifier),
-			query.Deleted.Is(false)).
+		Where(query.Email.Eq(body.Identifier)).
+		Or(query.Phone.Eq(body.Identifier)).
 		First()
 	if err != nil {
 		return shared.NotFound(c, UserResource)

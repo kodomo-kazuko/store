@@ -1,11 +1,15 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Role struct {
-	CreatedAt time.Time `json:"created_at,omitzero"`
-	UpdatedAt time.Time `json:"updated_at,omitzero"`
-	ID        uint      `json:"id,omitempty" gorm:"primarykey"`
-	Name      string    `json:"name,omitempty" gorm:"unique"`
-	Deleted   bool      `json:"deleted,omitempty" gorm:"not null;default:false"`
+	ID        uint           `json:"id,omitempty,omitzero" gorm:"primarykey"`
+	CreatedAt time.Time      `json:"created_at,omitempty,omitzero"`
+	UpdatedAt time.Time      `json:"updated_at,omitempty,omitzero"`
+	DeletedAt gorm.DeletedAt `json:"deleted_at,omitempty,omitzero" gorm:"index"`
+	Name      string         `json:"name,omitempty" gorm:"unique"`
 }

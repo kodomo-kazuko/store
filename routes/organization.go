@@ -12,5 +12,9 @@ func organization(router fiber.Router) {
 	route := "organization"
 	organization := router.Group(fmt.Sprintf("/%s", route))
 	protect := organization.Use(middleware.JWTMiddleware())
-	protect.Get("", handler.CreateOrganizationHandler)
+	protect.Post("", handler.CreateOrganizationHandler)
+	protect.Get("", handler.GetOrganizationHandler)
+	protect.Patch("/:id", handler.UpdateOrganizationHandler)
+	protect.Delete("/:id", handler.DeleteOrganizationHandler)
+	protect.Get("/:id", handler.GetOrganizationByIDHandler)
 }
