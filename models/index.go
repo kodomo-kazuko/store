@@ -1,11 +1,12 @@
 package models
 
-var Models = []any{
-	&LU_LookUpType{},
-	&LU_LookUpValue{},
+var Models = []interface{}{
+	&LookUpType{},
+	&LookUpValue{},
 	&Organization{},
 	&Product{},
 	&Role{},
 	&User{},
 	&Report{},
+	&ProductType{},
 }

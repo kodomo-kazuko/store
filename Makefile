@@ -8,7 +8,7 @@ migrate:
 	go run database/migrate/main.go
 
 local:
-	go build main.go && ./main -ip 10.147.17.117:8080
+	go build main.go && main -ip 10.147.17.168:8080
 
 seed:
 	go run database/seed/main.go
@@ -25,3 +25,15 @@ diff:
 
 apply:
 	atlas migrate apply --env gorm
+
+.PHONY: pgr postgrest docker
+
+pgr: postgrest docker
+
+postgrest:
+	@echo "Starting PostgREST..."
+	postgrest start.conf
+
+docker:
+	@echo "Starting Docker Compose..."
+	docker-compose up

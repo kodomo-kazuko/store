@@ -41,7 +41,6 @@ func LoginUserHandler(c *fiber.Ctx) error {
 		"name":            user.FirstName,
 		"organization_id": user.OrganizationID,
 		"role_id":         user.RoleID,
-		"position_id":     user.PositionID,
 	}
 	token, err := middleware.GenerateJWT(claims)
 	if err != nil {
