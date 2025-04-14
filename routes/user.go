@@ -3,6 +3,7 @@ package routes
 import (
 	"fmt"
 	"store/handler"
+	"store/middleware"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -13,6 +14,7 @@ func user(router fiber.Router) {
 
 	user.Post("/login", handler.LoginUserHandler)
 
-	// protect := user.Use(middleware.JWTMiddleware())
-	// protect.Get("", handler.CreateOrganizationHandler)
+	protect := user.Use(middleware.JWTMiddleware())
+	protect.Get("/account", handler.GetUserAccountHandler)
+	protect.Get("/:id", handler.GetUserByIDHandler)
 }

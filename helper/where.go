@@ -7,6 +7,14 @@ import (
 	"gorm.io/gen"
 )
 
+type QueryInput func(string) gen.Condition
+
+type QueryType map[string]QueryInput
+
+// Constructor to wrap a function as QueryInput
+func QueryFunc(f func(string) gen.Condition) QueryInput {
+	return f
+}
 func Where(conds ...gen.Condition) func(db gen.Dao) gen.Dao {
 	return func(db gen.Dao) gen.Dao {
 		if conds == nil {
@@ -16,7 +24,7 @@ func Where(conds ...gen.Condition) func(db gen.Dao) gen.Dao {
 	}
 }
 
-func BuildConds(c *fiber.Ctx, paramToCondition map[string]func(string) gen.Condition) []gen.Condition {
+func BuildConds(c *fiber.Ctx, paramToCondition map[string]QueryInput) []gen.Condition {
 	params := FilterParams(c)
 	QParams := PMap(params)
 	var conds []gen.Condition

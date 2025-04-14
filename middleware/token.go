@@ -154,7 +154,7 @@ func ExtractAdmin(c *fiber.Ctx) bool {
 }
 
 func GetIDFromParams(c *fiber.Ctx) uint {
-	id, _ := strconv.Atoi(c.Params("id"))
+	id, _ := c.ParamsInt("id")
 
 	return uint(id)
 }

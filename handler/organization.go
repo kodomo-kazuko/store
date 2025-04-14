@@ -34,7 +34,7 @@ func CreateOrganizationHandler(ctx *fiber.Ctx) error {
 func GetOrganizationHandler(ctx *fiber.Ctx) error {
 	_organization := query.Organization
 
-	params := map[string]func(string) gen.Condition{
+	params := helper.QueryType{
 		"email":    func(value string) gen.Condition { return _organization.Email.Lower().Like(value) },
 		"name":     func(value string) gen.Condition { return _organization.Name.Lower().Like(value) },
 		"register": func(value string) gen.Condition { return _organization.Register.Lower().Like(value) },
@@ -52,7 +52,7 @@ func GetOrganizationHandler(ctx *fiber.Ctx) error {
 	conds := helper.BuildConds(ctx, params)
 
 	data, err := _organization.WithContext(ctx.Context()).
-		Scopes(helper.Where(conds...)).
+		Scopes(helper.Where(conds...), helper.Paginate(ctx)).
 		Find()
 	if err != nil {
 		return shared.InternalServerError(ctx, err)

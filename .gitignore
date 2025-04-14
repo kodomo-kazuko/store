@@ -2,3 +2,4 @@
 # Ignore the auto generated query folder and it's contents
 query/
 migrations/
+main.exe
