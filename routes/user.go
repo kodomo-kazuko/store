@@ -16,5 +16,6 @@ func user(router fiber.Router) {
 
 	protect := user.Use(middleware.JWTMiddleware())
 	protect.Get("/account", handler.GetUserAccountHandler)
+	protect.Get("/", handler.GetUserHandler)
 	protect.Get("/:id", handler.GetUserByIDHandler)
 }

@@ -3,16 +3,19 @@ package main
 import (
 	"context"
 	"log"
+	"math/rand"
 	"store/config"
 	"store/database"
 	"store/models"
 	"store/query"
 
+	"github.com/jaswdr/faker/v2"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
 func main() {
+	fake := faker.New()
 	config.MustLoad()
 
 	// Connect to the database
@@ -29,6 +32,13 @@ func main() {
 		// Use the transaction for the query builder
 		q := query.Use(tx)
 
+		OrgRoles := []*models.OrganizationType{
+			{Name: "server"},
+			{Name: "consumer"},
+		}
+
+		q.OrganizationType.WithContext(ctx).CreateInBatches(OrgRoles, len(OrgRoles))
+
 		// Seed roles
 		roles := []*models.Role{
 			{Name: "admin"},
@@ -40,11 +50,12 @@ func main() {
 
 		// Seed organization
 		organization := &models.Organization{
-			Name:     "test_company",
-			Email:    "test@gmail.com",
-			Phone:    "12345678",
-			Register: "12345678",
-			Address:  "test address",
+			Name:               "test_company",
+			Email:              "test@gmail.com",
+			Phone:              "12345678",
+			Register:           "12345678",
+			Address:            "test address",
+			OrganizationTypeID: 1,
 		}
 		if err := q.Organization.WithContext(ctx).Create(organization); err != nil {
 			return err
@@ -70,6 +81,31 @@ func main() {
 
 		// Seed user
 		if err := q.User.WithContext(ctx).Create(user); err != nil {
+			return err
+		}
+
+		// Seed 3 product types
+		types := make([]*models.ProductType, 0, 3)
+		for i := 0; i < 3; i++ {
+			types = append(types, &models.ProductType{Name: fake.App().Name()})
+		}
+		if err := q.ProductType.WithContext(ctx).CreateInBatches(types, len(types)); err != nil {
+			return err
+		}
+
+		// Seed 10 products with random types
+		products := make([]*models.Product, 0, 10)
+		for i := 0; i < 10; i++ {
+			ptID := types[rand.Intn(len(types))].ID
+			products = append(products, &models.Product{
+				Name:           fake.Beer().Name(),
+				Price:          float64(fake.Currency().Number()),
+				Stock:          fake.IntBetween(1, 100),
+				ProductTypeID:  ptID,
+				OrganizationID: organization.ID,
+			})
+		}
+		if err := q.Product.WithContext(ctx).CreateInBatches(products, len(products)); err != nil {
 			return err
 		}
 

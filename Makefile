@@ -13,8 +13,6 @@ local:
 seed:
 	go run database/seed/main.go
 
-
-
 all: migrate
 	make query
 	make seed

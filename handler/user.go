@@ -4,6 +4,7 @@ import (
 	"store/form"
 	"store/helper"
 	"store/middleware"
+	"store/models"
 	"store/query"
 	"store/shared"
 
@@ -91,9 +92,122 @@ func GetUserHandler(ctx *fiber.Ctx) error {
 		Scopes(
 			helper.Where(conds...),
 			helper.Paginate(ctx)).
+		Omit(_user.Password).
 		Find()
 	if err != nil {
 		return shared.NotFound(ctx, UserResource)
 	}
 	return shared.Found(ctx, UserResource, users, nil)
 }
+
+func CreateUserHandler(ctx *fiber.Ctx) error {
+	_user := query.User
+	var body models.User
+	err := helper.Validation(ctx, &body)
+	if err != nil {
+		return shared.BadRequest(ctx, err.Error())
+	}
+	// Hash password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(body.Password), 10)
+	if err != nil {
+		return shared.InternalServerError(ctx, err)
+	}
+	body.Password = string(hashedPassword)
+	body.OrganizationID = middleware.ExtractOrganizationID(ctx)
+	// Create user
+	err = _user.WithContext(ctx.Context()).Create(&body)
+	if err != nil {
+		return shared.InternalServerError(ctx, err)
+	}
+
+	// responsd
+	return shared.Created(ctx, UserResource, nil)
+}
+
+func UpdateUserHandler(ctx *fiber.Ctx) error {
+	_user := query.User
+	id := middleware.GetIDFromParams(ctx)
+	var body models.User
+	err := helper.Validation(ctx, &body)
+	if err != nil {
+		return shared.BadRequest(ctx, err.Error())
+	}
+	body.ID = id
+	body.OrganizationID = middleware.ExtractOrganizationID(ctx)
+
+	// Update user
+	_, err = _user.WithContext(ctx.Context()).Updates(&body)
+	if err != nil {
+		return shared.InternalServerError(ctx, err)
+	}
+
+	return shared.Updated(ctx, UserResource, nil)
+}
+func DeleteUserHandler(ctx *fiber.Ctx) error {
+	_user := query.User
+	id := middleware.GetIDFromParams(ctx)
+
+	// Delete user
+	_, err := _user.WithContext(ctx.Context()).Where(_user.ID.Eq(id)).Delete()
+	if err != nil {
+		return shared.InternalServerError(ctx, err)
+	}
+
+	return shared.Deleted(ctx, UserResource)
+}
+
+// func ChangePasswordHandler(ctx *fiber.Ctx) error {
+// 	_user := query.User
+// 	id := middleware.GetIDFromParams(ctx)
+// 	var body form.ChangePasswordForm
+// 	err := helper.Validation(ctx, &body)
+// 	if err != nil {
+// 		return shared.BadRequest(ctx, err.Error())
+// 	}
+
+// 	user, err := _user.WithContext(ctx.Context()).
+// 		Where(_user.ID.Eq(id)).
+// 		First()
+// 	if err != nil {
+// 		return shared.NotFound(ctx, UserResource)
+// 	}
+
+// 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(body.OldPassword)); err != nil {
+// 		return shared.BadRequest(ctx, "Invalid credentials")
+// 	}
+
+// 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(body.NewPassword), 10)
+// 	if err != nil {
+// 		return shared.InternalServerError(ctx, err)
+// 	}
+// 	body.NewPassword = string(hashedPassword)
+
+// 	user.Password = body.NewPassword
+
+// 	err = _user.WithContext(ctx.Context()).Updates(&user)
+// 	if err != nil {
+// 		return shared.InternalServerError(ctx, err)
+// 	}
+
+// 	return shared.Updated(ctx, UserResource, nil)
+// }
+
+// func UpdateUserProfileHandler(ctx *fiber.Ctx) error {
+// 	_user := query.User
+// 	id := middleware.GetIDFromParams(ctx)
+// 	var body models.User
+// 	err := helper.Validation(ctx, &body)
+// 	if err != nil {
+// 		return shared.BadRequest(ctx, err.Error())
+// 	}
+// 	body.ID = id
+// 	body.OrganizationID = middleware.ExtractOrganizationID(ctx)
+
+// 	// Update user
+// 	err = _user.WithContext(ctx.Context()).Updates(&body)
+// 	if err != nil {
+// 		return shared.InternalServerError(ctx, err)
+// 	}
+
+// 	return shared.Updated(ctx, UserResource, nil)
+// }

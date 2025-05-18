@@ -8,5 +8,6 @@ func InitRoutes(app *fiber.App) {
 	app.Route("", func(router fiber.Router) {
 		organization(app)
 		user(app)
+		product(app)
 	})
 }

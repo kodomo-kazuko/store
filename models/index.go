@@ -9,4 +9,6 @@ var Models = []interface{}{
 	&User{},
 	&Report{},
 	&ProductType{},
+	&History{},
+	&OrganizationType{},
 }
